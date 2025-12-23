@@ -81,7 +81,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 ">
         {/* Total Peminjaman Card */}
         <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#B3202A] to-[#8A1C24] rounded-2xl opacity-75 group-hover:opacity-100 blur group-hover:blur-md transition duration-300"></div>
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#B3202A] to-[#B3202A] rounded-2xl opacity-75 group-hover:opacity-100 blur group-hover:blur-md transition duration-300"></div>
           <Card className="relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-0">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#B3202A]/10 to-transparent rounded-bl-full"></div>
             <CardHeader className="pb-2 ">
@@ -362,49 +362,52 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
         </Card>
       )}
 
-      <div className="mt-8">
-        <Card className="shadow-lg border-0">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-            <CardTitle className="flex items-center gap-2">
-              <Home className="size-5 text-[#B3202A]" />
-              Aset Tersedia
-            </CardTitle>
-            <CardDescription>Daftar ruangan dan barang yang dapat dipinjam</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 px-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {assets.map((asset) => (
-                <div 
-                  key={asset.id} 
-                  onClick={() => onNavigate('peminjaman')}
-                  className="group border rounded-xl border-gray-300 p-5 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 hover:border-[#B3202A]/30 cursor-pointer"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={`p-3 rounded-xl ${asset.type === 'ruangan' ? 'bg-[#147EFB]/10 group-hover:bg-[#147EFB]/20' : 'bg-[#F4A100]/10 group-hover:bg-[#F4A100]/20'} transition-colors`}>
-                      {asset.type === 'ruangan' ? (
-                        <Home className="size-6 text-[#147EFB]" />
-                      ) : (
-                        <Package className="size-6 text-[#F4A100]" />
+      {/* Only show "Aset Tersedia" for mahasiswa, dosen, and staff */}
+      {user.role !== 'verifikator' && (
+        <div className="mt-8">
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Home className="size-5 text-[#B3202A]" />
+                Aset Tersedia
+              </CardTitle>
+              <CardDescription>Daftar ruangan dan barang yang dapat dipinjam</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 px-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {assets.map((asset) => (
+                  <div 
+                    key={asset.id} 
+                    onClick={() => onNavigate('peminjaman')}
+                    className="group border rounded-xl border-gray-300 p-5 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 hover:border-[#B3202A]/30 cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`p-3 rounded-xl ${asset.type === 'ruangan' ? 'bg-[#147EFB]/10 group-hover:bg-[#147EFB]/20' : 'bg-[#F4A100]/10 group-hover:bg-[#F4A100]/20'} transition-colors`}>
+                        {asset.type === 'ruangan' ? (
+                          <Home className="size-6 text-[#147EFB]" />
+                        ) : (
+                          <Package className="size-6 text-[#F4A100]" />
+                        )}
+                      </div>
+                      {asset.type === 'barang' && (
+                        <Badge variant="secondary" className="bg-gray-100">
+                          Stok: {asset.stock}
+                        </Badge>
                       )}
                     </div>
-                    {asset.type === 'barang' && (
-                      <Badge variant="secondary" className="bg-gray-100">
-                        Stok: {asset.stock}
-                      </Badge>
-                    )}
+                    <h4 className="text-gray-900 mb-2 group-hover:text-[#B3202A] transition-colors">{asset.name}</h4>
+                    <p className="text-sm text-gray-600">{asset.description}</p>
+                    <div className="mt-3 pt-3 border-t border-gray-100 flex items-center text-[#B3202A] text-sm">
+                      Pilih aset
+                      <ArrowRight className="size-4 ml-1" />
+                    </div>
                   </div>
-                  <h4 className="text-gray-900 mb-2 group-hover:text-[#B3202A] transition-colors">{asset.name}</h4>
-                  <p className="text-sm text-gray-600">{asset.description}</p>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center text-[#B3202A] text-sm">
-                    Pilih aset
-                    <ArrowRight className="size-4 ml-1" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

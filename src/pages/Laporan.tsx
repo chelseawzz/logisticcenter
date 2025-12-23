@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { Download, FileText, TrendingUp, Package, Home, Calendar } from 'lucide-react';
+import { Download, FileText, TrendingUp, Package, Home, Calendar, Clock, XCircle, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface LaporanProps {
@@ -84,7 +84,7 @@ export function Laporan({ bookings, assets }: LaporanProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h2 className="text-gray-900">Laporan</h2>
+        <h2 className="text-gray-900 font-bold">LAPORAN</h2>
         <p className="text-gray-600 mt-1">Laporan dan analisis peminjaman aset</p>
       </div>
 
@@ -95,7 +95,7 @@ export function Laporan({ bookings, assets }: LaporanProps) {
           <CardDescription>Pilih rentang tanggal untuk melihat laporan</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-5">
             <div className="space-y-2">
               <Label htmlFor="startDate">Tanggal Mulai</Label>
               <Input
@@ -136,98 +136,181 @@ export function Laporan({ bookings, assets }: LaporanProps) {
         </CardContent>
       </Card>
 
-      {/* Statistics Cards */}
+      {/* MODERN Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Total Peminjaman</CardDescription>
-            <CardTitle className="text-[#B3202A]">{stats.totalBookings}</CardTitle>
+        {/* Total Peminjaman */}
+        <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-transparent bg-gradient-to-br from-[#B3202A]/10 via-white to-white p-[2px] group">
+          <div className="bg-white rounded-2xl h-full">
+            <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-[#B3202A]/20 to-transparent rounded-br-full"></div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#B3202A]/20 rounded-xl blur-md"></div>
+                  <div className="relative p-3 bg-gradient-to-br from-[#B3202A] to-[#8A1C24] rounded-xl shadow-md">
+                    <FileText className="size-6 text-white" />
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <TrendingUp className="size-5 text-[#B3202A]/40" />
+                  <span className="text-[10px] text-[#B3202A]/60 mt-1 uppercase tracking-wide">Total</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 px-5">
+              <CardDescription className="text-xs uppercase tracking-wide mb-1">Total Peminjaman</CardDescription>
+              <CardTitle className="text-3xl text-[#B3202A] mb-1">{stats.totalBookings}</CardTitle>
+              <p className="text-xs text-gray-500">Semua peminjaman</p>
+            </CardContent>
+          </div>
+        </Card>
+
+        {/* Ruangan */}
+        <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-t-4 border-[#147EFB] group">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#147EFB]/5 via-transparent to-transparent"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#147EFB]/10 to-transparent rounded-bl-full"></div>
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="relative p-3.5 bg-gradient-to-br from-[#147EFB] to-[#0C5FD1] rounded-2xl shadow-lg">
+                <Home className="size-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardDescription className="text-xs uppercase tracking-wide mb-1">Ruangan</CardDescription>
+                <CardTitle className="text-3xl text-[#147EFB]">{stats.ruanganBookings}</CardTitle>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <FileText className="size-8 text-[#B3202A]/20" />
+          <CardContent className="pt-2 px-5">
+            <p className="text-xs text-gray-500">Peminjaman ruangan</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Ruangan</CardDescription>
-            <CardTitle className="text-[#147EFB]">{stats.ruanganBookings}</CardTitle>
+        {/* Barang */}
+        <Card className="relative bg-gradient-to-br from-white to-[#F4A100]/5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[#F4A100]/20 hover:border-[#F4A100]/40 group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#F4A100]/20 to-transparent rounded-bl-full"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-[#F4A100]/10 to-transparent rounded-tr-full"></div>
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-[#F4A100]/30 rounded-full blur-lg"></div>
+                <div className="relative p-3 bg-white rounded-full shadow-md border-2 border-[#F4A100]/30">
+                  <Package className="size-6 text-[#F4A100]" />
+                </div>
+              </div>
+              <div className="flex-1 pt-1">
+                <CardDescription className="text-xs uppercase tracking-wide mb-1 text-[#F4A100]/80">Barang</CardDescription>
+                <CardTitle className="text-3xl text-[#F4A100]">{stats.barangBookings}</CardTitle>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <Home className="size-8 text-[#147EFB]/20" />
+          <CardContent className="pt-2 px-5">
+            <p className="text-xs text-gray-500">Peminjaman barang</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Barang</CardDescription>
-            <CardTitle className="text-[#F4A100]">{stats.barangBookings}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Package className="size-8 text-[#F4A100]/20" />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Disetujui</CardDescription>
-            <CardTitle className="text-[#4CAF50]">{stats.approved}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TrendingUp className="size-8 text-[#4CAF50]/20" />
-          </CardContent>
-        </Card>
+        {/* Disetujui */}
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] rounded-2xl opacity-60 group-hover:opacity-100 blur-sm transition duration-300"></div>
+          <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-0">
+            <div className="absolute right-0 bottom-0 opacity-5">
+              <TrendingUp className="size-24 text-[#4CAF50]" />
+            </div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-gradient-to-br from-[#4CAF50] to-[#388E3C] rounded-xl shadow-md">
+                  <TrendingUp className="size-6 text-white" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 px-5">
+              <CardDescription className="text-xs uppercase tracking-wide mb-1">Disetujui</CardDescription>
+              <CardTitle className="text-3xl text-[#4CAF50]">{stats.approved}</CardTitle>
+              <p className="text-xs text-gray-500 mt-1">Pengajuan diterima</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Status Breakdown */}
+      {/* MODERN Status Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="border-2 border-[#F4A100]/30">
-          <CardHeader className="pb-3">
-            <CardDescription>Menunggu Verifikasi</CardDescription>
-            <CardTitle className="text-[#F4A100]">{stats.pending}</CardTitle>
+        {/* Menunggu Verifikasi */}
+        <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-t-4 border-[#F4A100] group">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F4A100]/5 via-transparent to-transparent"></div>
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="relative p-3.5 bg-gradient-to-br from-[#F4A100] to-[#D68B00] rounded-2xl shadow-lg">
+                <Clock className="size-6 text-white" />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F4A100] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#F4A100]"></span>
+                </span>
+              </div>
+              <div className="flex-1">
+                <CardDescription className="text-xs uppercase tracking-wide mb-1">Menunggu</CardDescription>
+                <CardTitle className="text-3xl text-[#F4A100]">{stats.pending}</CardTitle>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-600">
+          <CardContent className="pt-2 px-5">
+            <div className="text-xs text-[#F4A100]">
               {stats.totalBookings > 0 
                 ? `${((stats.pending / stats.totalBookings) * 100).toFixed(1)}%`
-                : '0%'
-              } dari total
+                : '0%'} dari total
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-[#E53935]/30">
-          <CardHeader className="pb-3">
-            <CardDescription>Ditolak</CardDescription>
-            <CardTitle className="text-[#E53935]">{stats.rejected}</CardTitle>
+        {/* Ditolak */}
+        <Card className="relative bg-gradient-to-br from-white to-red-50/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[#E53935]/20 hover:border-[#E53935]/40 group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#E53935]/20 to-transparent rounded-bl-full"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-[#E53935]/10 to-transparent rounded-tr-full"></div>
+          <CardHeader className="pb-2">
+            <div className="flex items-start gap-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-[#E53935]/30 rounded-full blur-lg"></div>
+                <div className="relative p-3 bg-white rounded-full shadow-md border-2 border-[#E53935]/30">
+                  <XCircle className="size-6 text-[#E53935]" />
+                </div>
+              </div>
+              <div className="flex-1 pt-1">
+                <CardDescription className="text-xs uppercase tracking-wide mb-1 text-[#E53935]/80">Ditolak</CardDescription>
+                <CardTitle className="text-3xl text-[#E53935]">{stats.rejected}</CardTitle>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-600">
+          <CardContent className="pt-2 px-5">
+            <div className="text-xs text-[#E53935]">
               {stats.totalBookings > 0 
                 ? `${((stats.rejected / stats.totalBookings) * 100).toFixed(1)}%`
-                : '0%'
-              } dari total
+                : '0%'} dari total
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-gray-200">
-          <CardHeader className="pb-3">
-            <CardDescription>Selesai</CardDescription>
-            <CardTitle className="text-gray-600">{stats.completed}</CardTitle>
+        {/* Selesai */}
+        <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gray-100/30 rounded-bl-full"></div>
+          <CardHeader className="pb-2">
+            <div className="flex items-start gap-3">
+              <div className="p-3 bg-gray-100 rounded-full border border-gray-200">
+                <CheckCircle className="size-6 text-gray-600" />
+              </div>
+              <div className="flex-1 pt-1">
+                <CardDescription className="text-xs uppercase tracking-wide mb-1 text-gray-500">Selesai</CardDescription>
+                <CardTitle className="text-3xl text-gray-600">{stats.completed}</CardTitle>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-600">
+          <CardContent className="pt-2 px-5">
+            <div className="text-xs text-gray-600">
               {stats.totalBookings > 0 
                 ? `${((stats.completed / stats.totalBookings) * 100).toFixed(1)}%`
-                : '0%'
-              } dari total
+                : '0%'} dari total
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Detailed Table */}
+      {/* Detailed Table (UNCHANGED) */}
       <Card>
         <CardHeader>
           <CardTitle>Riwayat Lengkap Peminjaman</CardTitle>
@@ -236,19 +319,19 @@ export function Laporan({ bookings, assets }: LaporanProps) {
             {startDate && endDate && ` (${formatDate(startDate)} - ${formatDate(endDate)})`}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5">
           <div className="border rounded-lg overflow-hidden">
             <Table>
-              <TableHeader>
-                <TableRow className="bg-red-50">
-                  <TableHead className="text-red-900">No</TableHead>
-                  <TableHead className="text-red-900">Tanggal</TableHead>
-                  <TableHead className="text-red-900">Peminjam</TableHead>
-                  <TableHead className="text-red-900">Jenis</TableHead>
-                  <TableHead className="text-red-900">Aset</TableHead>
-                  <TableHead className="text-red-900">Periode</TableHead>
-                  <TableHead className="text-red-900">Jumlah</TableHead>
-                  <TableHead className="text-red-900">Status</TableHead>
+              <TableHeader className="pointer-events-none">
+                <TableRow className="bg-black">
+                  <TableHead className="text-white">No</TableHead>
+                  <TableHead className="text-white">Tanggal</TableHead>
+                  <TableHead className="text-white">Peminjam</TableHead>
+                  <TableHead className="text-white">Jenis</TableHead>
+                  <TableHead className="text-white">Aset</TableHead>
+                  <TableHead className="text-white">Periode</TableHead>
+                  <TableHead className="text-white">Jumlah</TableHead>
+                  <TableHead className="text-white">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -10,7 +10,7 @@ import { VerifikasiPengajuan } from './pages/VerifikasiPengajuan';
 import { KelolaAset } from './pages/KelolaAset';
 import { Sidebar } from './pages/sidebar';
 import { Toaster } from './components/ui/sonner';
-import { Laporan } from './pages/Laporan';
+// import { Laporan } from './pages/Laporan';
 
 
 
@@ -48,7 +48,7 @@ export interface Booking {
   namaKegiatan?: string;
 }
 
-export type Page = 'login' | 'dashboard' | 'profile' | 'peminjaman' | 'pengembalian' | 'kalender' | 'tabel' | 'verifikasi' | 'kelola-aset' | 'laporan';
+export type Page = 'login' | 'dashboard' | 'profile' | 'peminjaman' | 'pengembalian' | 'kalender' | 'tabel' | 'verifikasi' | 'kelola-aset'; // <-- 'laporan' removed
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('login');
@@ -362,8 +362,6 @@ function App() {
         return <VerifikasiPengajuan bookings={bookings} onUpdateStatus={handleUpdateBookingStatus} />;
       case 'kelola-aset':
         return <KelolaAset assets={assets} />;
-      case 'laporan':
-        return <Laporan bookings={bookings} assets={assets} />;
       default:
         return <Dashboard user={currentUser!} bookings={bookings} assets={assets} onNavigate={setCurrentPage} />;
     }

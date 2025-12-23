@@ -1,15 +1,7 @@
 import { useState } from 'react';
 import type { User, Page } from '../App';
 import { Button } from '../components/ui/button';
-import {
-  LogOut,
-  Home,
-  Calendar,
-  Package,
-  RotateCcw,
-  CheckSquare,
-  Settings,
-} from 'lucide-react';
+import { LogOut, User as UserIcon, Home, Calendar, Package, RotateCcw, CheckSquare, Settings, FileText } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage} from '../components/ui/avatar';
 import { Badge } from '../components/ui/badge';
 
@@ -20,22 +12,16 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-export function Sidebar({
-  user,
-  currentPage,
-  onNavigate,
-  onLogout,
-}: SidebarProps) {
-  const [isOpen, setIsOpen] = useState(true);
-  const toggleSidebar = () => setIsOpen(prev => !prev);
 
-  const getInitials = (name: string) =>
-    name
+export function Sidebar({ user, currentPage, onNavigate, onLogout }: SidebarProps) {
+  const getInitials = (name: string) => {
+    return name
       .split(' ')
       .map(n => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
 
   const getRoleBadgeColor = (role: User['role']) => {
     switch (role) {
@@ -47,8 +33,6 @@ export function Sidebar({
         return 'bg-[#F4A100] text-white border-[#F4A100]';
       case 'verifikator':
         return 'bg-[#B3202A] text-white border-[#B3202A]';
-      default:
-        return '';
     }
   };
 
@@ -65,125 +49,88 @@ export function Sidebar({
     }
   };
 
-  const navItems =
-    user.role === 'verifikator'
-      ? [
-          { page: 'dashboard' as Page, icon: Home, label: 'Dashboard' },
-          { page: 'verifikasi' as Page, icon: CheckSquare, label: 'Verifikasi Peminjaman' },
-          { page: 'kelola-aset' as Page, icon: Settings, label: 'Kelola Aset' },
-          { page: 'kalender' as Page, icon: Calendar, label: 'Kalender' },
-        ]
-      : [
-          { page: 'dashboard' as Page, icon: Home, label: 'Dashboard' },
-          { page: 'peminjaman' as Page, icon: Package, label: 'Ajukan Peminjaman' },
-          { page: 'pengembalian' as Page, icon: RotateCcw, label: 'Pengembalian' },
-          { page: 'kalender' as Page, icon: Calendar, label: 'Kalender' },
-        ];
+  // Menu berbeda untuk verifikator vs peminjam
+  const navItems = user.role === 'verifikator' ? [
+    { page: 'dashboard' as Page, icon: Home, label: 'Dashboard' },
+    { page: 'verifikasi' as Page, icon: CheckSquare, label: 'Verifikasi Pengajuan' },
+    { page: 'kelola-aset' as Page, icon: Settings, label: 'Kelola Aset' },
+
+    { page: 'kalender' as Page, icon: Calendar, label: 'Kalender' },
+  ] : [
+    { page: 'dashboard' as Page, icon: Home, label: 'Dashboard' },
+    { page: 'peminjaman' as Page, icon: Package, label: 'Ajukan Peminjaman' },
+    { page: 'pengembalian' as Page, icon: RotateCcw, label: 'Pengembalian' },
+    { page: 'kalender' as Page, icon: Calendar, label: 'Kalender' },
+  ];
 
   return (
-    <aside
-      className={`fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ${
-        isOpen ? 'w-64' : 'w-20'
-      }`}
-    >
-      {/* HEADER */}
-<div className="px-5 py-4 bg-[#111111] border-b border-white/10">
-  <div
-    className={`flex items-center ${
-      isOpen ? 'justify-between' : 'justify-center gap-4'
-    }`}
-  >
-    {/* Logo + Text */}
-    <div className="flex items-center gap-3">
-      <Package className="size-7 text-[#F4A100]" />
-
-      {isOpen && (
-        <div className="leading-tight">
-          <h1 className="text-sm font-medium text-white">
-            LogistikCenter
-          </h1>
-          <p className="text-[11px] text-white/60">
-            Sistem Peminjaman Aset
-          </p>
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#1A1A1A] text-white flex flex-col shadow-xl">
+      {/* Logo/Brand */}
+      <div className="p-6 border-b border-[#2C2C2C]">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Package className="size-8 text-[#F4A100]" />
         </div>
-      )}
-    </div>
-
-    {/* Hamburger */}
-    <button
-      onClick={toggleSidebar}
-      className="text-white hover:text-white/80 transition"
-    >
-      <div className="flex flex-col gap-[3px]">
-        <span className="block w-5 h-0.5 bg-white"></span>
-        <span className="block w-5 h-0.5 bg-white"></span>
-        <span className="block w-5 h-0.5 bg-white"></span>
+        <h1 className="text-white text-center">
+          LogistikCenter
+        </h1>
+        <p className="text-gray-400 text-center text-xs mt-1">
+          Sistem Peminjaman Aset
+        </p>
       </div>
-    </button>
-  </div>
-</div>
 
-
-      {/* ================= BODY SIDEBAR (HITAM) ================= */}
-      <div className="flex-1 bg-[#111111] text-white flex flex-col">
-        {/* Profile */}
-        <div className="px-5 py-5 border-b border-white/10 flex items-center gap-4">
-          <Avatar className="size-11 bg-[#B3202A]">
-            <AvatarFallback className="bg-[#B3202A] text-white text-sm">
+      {/* User Profile */}
+      <div className="p-6 border-b border-[#2C2C2C]">
+        <button
+          onClick={() => onNavigate('profile')}
+          className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-[#2C2C2C] transition-colors"
+        >
+          <Avatar className="size-12 bg-[#B3202A]">
+            <AvatarFallback className="bg-[#B3202A] text-white">
               {getInitials(user.name)}
             </AvatarFallback>
           </Avatar>
+          <div className="flex-1 text-left">
+            <p className="text-white text-sm truncate">{user.name}</p>
+            <Badge variant="outline" className={`text-xs px-2 py-0.5 mt-1 ${getRoleBadgeColor(user.role)} border`}>
+              {getRoleLabel(user.role)}
+            </Badge>
+          </div>
+        </button>
+      </div>
 
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentPage === item.page;
+          
+          return (
+            <button
+              key={item.page}
+              onClick={() => onNavigate(item.page)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${'              '}${
+                isActive
+                  ? 'bg-[#B3202A] text-white shadow-lg'
+                  : 'text-gray-300 hover:bg-[#2C2C2C] hover:text-white'
+              }`}
+            >
+              <Icon className="size-5" />
+              <span className="text-sm">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
 
-
-          {isOpen && (
-            <div>
-              <p className="text-[13px] font-medium">{user.name}</p>
-              <Badge
-                variant="outline"
-                className={`mt-1 text-[10px] px-2.5 py-0.5 rounded-full border ${getRoleBadgeColor(
-                  user.role
-                )}`}
-              >
-                {getRoleLabel(user.role)}
-              </Badge>
-            </div>
-          )}
-        </div>
-
-        {/* Menu */}
-        <nav className="flex-1 px-3 py-4 space-y-2">
-          {navItems.map(({ page, icon: Icon, label }) => {
-            const isActive = currentPage === page;
-
-            return (
-              <button
-                key={page}
-                onClick={() => onNavigate(page)}
-                className={`w-full flex items-center gap-4 px-5 py-3 rounded-md text-[13px] transition-colors ${
-                  isActive
-                    ? 'bg-[#B3202A] text-white'
-                    : 'text-white/80 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <Icon className="size-5 shrink-0" />
-                {isOpen && label}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Logout (BAWAH) */}
-        <div className="px-3 py-4 border-t border-white/10">
-          <Button
-            onClick={onLogout}
-            variant="ghost"
-            className="w-full flex items-center gap-4 px-5 py-3 text-[13px] text-white/80 hover:bg-white/10 hover:text-white"
-          >
-            <LogOut className="size-5 shrink-0" />
-            {isOpen && 'Logout'}
-          </Button>
-        </div>
+      {/* Logout Button */}
+      <div className="p-4 border-t border-[#2C2C2C]">
+        <Button
+          onClick={onLogout}
+          variant="ghost"
+          className="w-full justify-start text-gray-300 hover:bg-[#2C2C2C] hover:text-white"
+        >
+          <LogOut className="size-5 mr-3" />
+          Logout
+        </Button>
       </div>
     </aside>
   );

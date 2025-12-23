@@ -4,40 +4,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { CheckCircle, XCircle, Clock, Package, Home, FileText, Eye, TrendingUp, AlertCircle, History } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Package, Home, FileText, Eye, TrendingUp, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { toast } from 'sonner';
 
 interface VerifikasiPengajuanProps {
   bookings: Booking[];
-  onViewDetail?: (booking: Booking) => void;
   onUpdateStatus: (bookingId: string, status: 'disetujui' | 'ditolak') => void;
 }
 
-export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: VerifikasiPengajuanProps) {
+export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPengajuanProps) {
   const [filter, setFilter] = useState<'all' | 'ajukan' | 'disetujui' | 'ditolak'>('ajukan');
-  const [riwayatFilter, setRiwayatFilter] = useState<'all' | 'disetujui' | 'ditolak'>('all');
-
   const pendingBookings = bookings.filter(b => b.status === 'ajukan');
   const approvedBookings = bookings.filter(b => b.status === 'disetujui');
   const rejectedBookings = bookings.filter(b => b.status === 'ditolak');
-  
-  // Riwayat: semua yang sudah diverifikasi (disetujui, ditolak, selesai)
-  const verifiedBookings = bookings.filter(b => 
-    b.status === 'disetujui' || b.status === 'ditolak' || b.status === 'selesai'
-  );
-
   const filteredBookings = filter === 'all' 
     ? bookings 
     : bookings.filter(b => b.status === filter);
-
-  const filteredRiwayat = riwayatFilter === 'all'
-    ? verifiedBookings
-    : verifiedBookings.filter(b => {
-        if (riwayatFilter === 'disetujui') {
-          return b.status === 'disetujui' || b.status === 'selesai';
-        }
-        return b.status === riwayatFilter;
-      });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -77,21 +60,21 @@ export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: 
     switch (status) {
       case 'ajukan':
         return (
-          <Badge variant="outline" className="bg-[#F4A100]/10 text-[#F4A100] border-[#F4A100]/30">
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
             <Clock className="size-3 mr-1" />
             Menunggu
           </Badge>
         );
       case 'disetujui':
         return (
-          <Badge variant="outline" className="bg-[#4CAF50]/10 text-[#4CAF50] border-[#4CAF50]/30">
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
             <CheckCircle className="size-3 mr-1" />
             Disetujui
           </Badge>
         );
       case 'ditolak':
         return (
-          <Badge variant="outline" className="bg-[#E53935]/10 text-[#E53935] border-[#E53935]/30">
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300">
             <XCircle className="size-3 mr-1" />
             Ditolak
           </Badge>
@@ -108,14 +91,15 @@ export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
       <div className="mb-8">
         <h2 className="text-gray-900 font-bold">VERIFIKASI PENGAJUAN</h2>
         <p className="text-gray-600 mt-1">Kelola dan verifikasi pengajuan peminjaman</p>
       </div>
 
-      {/* Modern Statistics Cards with Gradient */}
+      {/* Modern Statistics Cards with Gradient (from first code) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Pengajuan Card - Style 1: Double Border Gradient */}
+        {/* Total Pengajuan Card */}
         <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-transparent bg-gradient-to-br from-[#B3202A]/10 via-white to-white p-[2px] group">
           <div className="bg-white rounded-2xl h-full">
             <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-[#B3202A]/20 to-transparent rounded-br-full"></div>
@@ -141,7 +125,7 @@ export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: 
           </div>
         </Card>
 
-        {/* Menunggu Verifikasi Card - Style 2: Pulse Animation with Top Border */}
+        {/* Menunggu Verifikasi Card */}
         <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-t-4 border-[#F4A100] group">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F4A100]/5 via-transparent to-transparent"></div>
           <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#F4A100]/10 to-transparent rounded-tl-full"></div>
@@ -168,7 +152,7 @@ export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: 
           </CardContent>
         </Card>
 
-        {/* Disetujui Card - Style 3: Side Accent with Icon Background */}
+        {/* Disetujui Card */}
         <div className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] rounded-2xl opacity-60 group-hover:opacity-100 blur-sm group-hover:blur transition duration-300"></div>
           <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-0">
@@ -194,9 +178,8 @@ export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: 
           </Card>
         </div>
 
-        {/* Ditolak Card - Style 4: Subtle Shadow with Corner Decoration */}
+        {/* Ditolak Card */}
         <Card className="relative bg-gradient-to-br from-white to-red-50/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[#E53935]/20 hover:border-[#E53935]/40 group">
-          {/* Corner decoration */}
           <div className="absolute top-0 right-0">
             <div className="w-16 h-16 bg-gradient-to-bl from-[#E53935]/20 to-transparent"></div>
           </div>
@@ -225,463 +208,149 @@ export function VerifikasiPengajuan({ bookings, onViewDetail, onUpdateStatus }: 
       </div>
 
       {/* Tabs Filter */}
-      <Card className="shadow-lg border-0">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="size-5 text-[#B3202A]" />
-            Daftar Pengajuan
-          </CardTitle>
+      <Card className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <CardTitle>Daftar Pengajuan</CardTitle>
           <CardDescription>Filter pengajuan berdasarkan status</CardDescription>
         </CardHeader>
-        <CardContent className="pt-6 px-5">
+        <CardContent className = 'px-5 '>
           <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)} className="mb-6">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-100">
-              <TabsTrigger value="ajukan" className="data-[state=active]:bg-[#F4A100] data-[state=active]:text-white">
-                Menunggu ({pendingBookings.length})
-              </TabsTrigger>
-              <TabsTrigger value="disetujui" className="data-[state=active]:bg-[#4CAF50] data-[state=active]:text-white">
-                Disetujui ({approvedBookings.length})
-              </TabsTrigger>
-              <TabsTrigger value="ditolak" className="data-[state=active]:bg-[#E53935] data-[state=active]:text-white">
-                Ditolak ({rejectedBookings.length})
-              </TabsTrigger>
-              <TabsTrigger value="all" className="data-[state=active]:bg-[#B3202A] data-[state=active]:text-white">
-                Semua ({bookings.length})
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="ajukan">Menunggu ({pendingBookings.length})</TabsTrigger>
+              <TabsTrigger value="disetujui">Disetujui ({approvedBookings.length})</TabsTrigger>
+              <TabsTrigger value="ditolak">Ditolak ({rejectedBookings.length})</TabsTrigger>
+              <TabsTrigger value="all">Semua ({bookings.length})</TabsTrigger>
             </TabsList>
           </Tabs>
 
           {/* Booking List */}
-          <div className="space-y-4">
+          <div className="space-y-4 ">
             {filteredBookings.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <div className="inline-block p-6 bg-gray-100 rounded-full mb-4">
-                  <FileText className="size-12 text-gray-300" />
-                </div>
-                <p className="text-lg">Tidak ada pengajuan</p>
+              <div className="text-center py-12 text-gray-500 ">
+                <FileText className="size-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-lg font-medium">Tidak ada pengajuan</p>
                 <p className="text-sm text-gray-400 mt-1">Belum ada pengajuan pada kategori ini</p>
               </div>
             ) : (
-              filteredBookings.map((booking, index) => {
-                // Alternating card styles for visual variety
-                const cardStyle = index % 3;
-                
-                if (cardStyle === 0) {
-                  // Style 1: Left Border Accent
-                  return (
-                    <div key={booking.id} className="relative group">
-                      <div className="border-l-4 border-[#B3202A] rounded-xl p-5 hover:shadow-xl transition-all duration-300 bg-white shadow-md group-hover:border-[#8A1C24]">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-gray-50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-4">
-                              {booking.assetType === 'ruangan' ? (
-                                <div className="p-3 bg-[#147EFB]/10 rounded-xl border-2 border-[#147EFB]/30 shadow-sm">
-                                  <Home className="size-6 text-[#147EFB]" />
-                                </div>
-                              ) : (
-                                <div className="p-3 bg-[#F4A100]/10 rounded-xl border-2 border-[#F4A100]/30 shadow-sm">
-                                  <Package className="size-6 text-[#F4A100]" />
-                                </div>
-                              )}
-                              <div>
-                                <h3 className="text-gray-900 mb-1">{booking.assetName}</h3>
-                                <p className="text-sm text-gray-500 flex items-center gap-1">
-                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B3202A]"></span>
-                                  oleh <span className="text-gray-700">{booking.userName}</span>
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-16">
-                              <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Mulai</span>
-                                <p className="text-gray-900 mt-1">{formatDate(booking.startDate)}</p>
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Selesai</span>
-                                <p className="text-gray-900 mt-1">{formatDate(booking.endDate)}</p>
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Jumlah</span>
-                                <p className="text-gray-900 mt-1">
-                                  {booking.quantity} {booking.assetType === 'ruangan' ? 'ruangan' : 'unit'}
-                                </p>
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Diajukan</span>
-                                <p className="text-gray-900 mt-1 text-xs">{formatDateTime(booking.createdAt)}</p>
-                              </div>
-                            </div>
-
-                            <div className="mt-4 pl-16">
-                              <span className="text-gray-500 text-xs uppercase tracking-wide">Status:</span>
-                              <div className="mt-2">{getStatusBadge(booking.status)}</div>
-                            </div>
+              filteredBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="border rounded-xl p-5 hover:shadow-lg transition-shadow bg-white"
+                >
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-4">
+                        {booking.assetType === 'ruangan' ? (
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 shadow-sm">
+                            <Home className="size-6 text-blue-600" />
                           </div>
-
-                          <div className="flex flex-col gap-2 ml-4">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onViewDetail && onViewDetail(booking)}
-                              className="hover:bg-[#147EFB] hover:text-white hover:border-[#147EFB] transition-colors"
-                            >
-                              <Eye className="size-4 mr-1" />
-                              Detail
-                            </Button>
-
-                            {booking.status === 'ajukan' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-[#4CAF50] to-[#388E3C] hover:from-[#388E3C] hover:to-[#2E7D32] shadow-md"
-                                  onClick={() => handleApprove(booking.id)}
-                                >
-                                  <CheckCircle className="size-4 mr-1" />
-                                  Setujui
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-[#E53935] to-[#C62828] hover:from-[#C62828] hover:to-[#B71C1C] shadow-md text-white"
-                                  onClick={() => handleReject(booking.id)}
-                                >
-                                  <XCircle className="size-4 mr-1" />
-                                  Tolak
-                                </Button>
-                              </>
-                            )}
+                        ) : (
+                          <div className="p-3 bg-purple-50 rounded-lg border border-purple-100 shadow-sm">
+                            <Package className="size-6 text-purple-600" />
                           </div>
+                        )}
+                        <div>
+                          <h3 className="text-gray-900 font-medium">{booking.assetName}</h3>
+                          <p className="text-sm text-gray-500">oleh {booking.userName}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs uppercase tracking-wide text-gray-500">Tanggal Mulai</span>
+                          <p className="text-gray-900 mt-1">{formatDate(booking.startDate)}</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs uppercase tracking-wide text-gray-500">Tanggal Selesai</span>
+                          <p className="text-gray-900 mt-1">{formatDate(booking.endDate)}</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs uppercase tracking-wide text-gray-500">Jumlah</span>
+                          <p className="text-gray-900 mt-1">
+                            {booking.quantity} {booking.assetType === 'ruangan' ? 'ruangan' : 'unit'}
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs uppercase tracking-wide text-gray-500">Diajukan</span>
+                          <p className="text-gray-900 mt-1">{formatDateTime(booking.createdAt)}</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs uppercase tracking-wide text-gray-500">Status</span>
+                          <div className="mt-1">{getStatusBadge(booking.status)}</div>
                         </div>
                       </div>
                     </div>
-                  );
-                } else if (cardStyle === 1) {
-                  // Style 2: Gradient Background with Soft Border
-                  return (
-                    <div key={booking.id} className="relative group">
-                      <div className="rounded-xl p-5 hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white via-gray-50/50 to-white border-2 border-gray-100 hover:border-[#B3202A]/20 shadow-sm">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-4">
-                              {booking.assetType === 'ruangan' ? (
-                                <div className="relative">
-                                  <div className="absolute inset-0 bg-[#147EFB]/20 rounded-2xl blur-md"></div>
-                                  <div className="relative p-3.5 bg-gradient-to-br from-[#147EFB] to-[#0C5FD1] rounded-2xl shadow-md">
-                                    <Home className="size-6 text-white" />
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="relative">
-                                  <div className="absolute inset-0 bg-[#F4A100]/20 rounded-2xl blur-md"></div>
-                                  <div className="relative p-3.5 bg-gradient-to-br from-[#F4A100] to-[#D68B00] rounded-2xl shadow-md">
-                                    <Package className="size-6 text-white" />
-                                  </div>
-                                </div>
-                              )}
+                    <div className="flex flex-col gap-2">
+                      {/* Detail Dialog */}
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
+                            <Eye className="size-4 mr-1" />
+                            Detail
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Detail Pengajuan</DialogTitle>
+                            <DialogDescription>Informasi lengkap peminjaman</DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 mt-4">
+                            <div>
+                              <p className="text-sm text-gray-500">Nama Aset</p>
+                              <p>{booking.assetName}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-500">Peminjam</p>
+                              <p>{booking.userName}</p>
+                            </div>
+                            {booking.ukmOrmawa && (
                               <div>
-                                <h3 className="text-gray-900 mb-1">{booking.assetName}</h3>
-                                <p className="text-sm text-gray-500 flex items-center gap-1">
-                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B3202A]"></span>
-                                  oleh <span className="text-gray-700">{booking.userName}</span>
-                                </p>
+                                <p className="text-sm text-gray-500">UKM/Ormawa</p>
+                                <p>{booking.ukmOrmawa}</p>
                               </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-16">
-                              <div className="bg-white rounded-lg p-3 shadow-sm">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Mulai</span>
-                                <p className="text-gray-900 mt-1">{formatDate(booking.startDate)}</p>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 shadow-sm">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Selesai</span>
-                                <p className="text-gray-900 mt-1">{formatDate(booking.endDate)}</p>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 shadow-sm">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Jumlah</span>
-                                <p className="text-gray-900 mt-1">
-                                  {booking.quantity} {booking.assetType === 'ruangan' ? 'ruangan' : 'unit'}
-                                </p>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 shadow-sm">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Diajukan</span>
-                                <p className="text-gray-900 mt-1 text-xs">{formatDateTime(booking.createdAt)}</p>
-                              </div>
-                            </div>
-
-                            <div className="mt-4 pl-16">
-                              <span className="text-gray-500 text-xs uppercase tracking-wide">Status:</span>
-                              <div className="mt-2">{getStatusBadge(booking.status)}</div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col gap-2 ml-4">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onViewDetail && onViewDetail(booking)}
-                              className="hover:bg-[#147EFB] hover:text-white hover:border-[#147EFB] transition-colors"
-                            >
-                              <Eye className="size-4 mr-1" />
-                              Detail
-                            </Button>
-
-                            {booking.status === 'ajukan' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-[#4CAF50] to-[#388E3C] hover:from-[#388E3C] hover:to-[#2E7D32] shadow-md"
-                                  onClick={() => handleApprove(booking.id)}
-                                >
-                                  <CheckCircle className="size-4 mr-1" />
-                                  Setujui
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-[#E53935] to-[#C62828] hover:from-[#C62828] hover:to-[#B71C1C] shadow-md text-white"
-                                  onClick={() => handleReject(booking.id)}
-                                >
-                                  <XCircle className="size-4 mr-1" />
-                                  Tolak
-                                </Button>
-                              </>
                             )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                } else {
-                  // Style 3: Elevated Card with Corner Badge
-                  return (
-                    <div key={booking.id} className="relative group">
-                      <div className="relative border rounded-2xl p-5 hover:shadow-xl transition-all duration-300 bg-white border-gray-200 hover:border-[#B3202A]/30 shadow-md overflow-hidden">
-                        {/* Top right decorative element */}
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#B3202A]/5 to-transparent rounded-bl-3xl"></div>
-                        
-                        {/* Corner dots decoration */}
-                        <div className="absolute top-3 right-3 flex gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#B3202A]/30"></span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#B3202A]/20"></span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#B3202A]/10"></span>
-                        </div>
-
-                        <div className="flex items-start justify-between relative">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-4">
-                              {booking.assetType === 'ruangan' ? (
-                                <div className="p-3 bg-white rounded-xl border-2 border-[#147EFB]/40 shadow-sm group-hover:shadow-md transition-shadow">
-                                  <Home className="size-6 text-[#147EFB]" />
-                                </div>
-                              ) : (
-                                <div className="p-3 bg-white rounded-xl border-2 border-[#F4A100]/40 shadow-sm group-hover:shadow-md transition-shadow">
-                                  <Package className="size-6 text-[#F4A100]" />
-                                </div>
-                              )}
-                              <div>
-                                <h3 className="text-gray-900 mb-1">{booking.assetName}</h3>
-                                <p className="text-sm text-gray-500 flex items-center gap-1">
-                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B3202A]"></span>
-                                  oleh <span className="text-gray-700">{booking.userName}</span>
-                                </p>
-                              </div>
+                            <div>
+                              <p className="text-sm text-gray-500">Tipe</p>
+                              <p className="capitalize">{booking.assetType}</p>
                             </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-16">
-                              <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Mulai</span>
-                                <p className="text-gray-900 mt-1">{formatDate(booking.startDate)}</p>
-                              </div>
-                              <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Selesai</span>
-                                <p className="text-gray-900 mt-1">{formatDate(booking.endDate)}</p>
-                              </div>
-                              <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Jumlah</span>
-                                <p className="text-gray-900 mt-1">
-                                  {booking.quantity} {booking.assetType === 'ruangan' ? 'ruangan' : 'unit'}
-                                </p>
-                              </div>
-                              <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-3 border border-gray-100">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Diajukan</span>
-                                <p className="text-gray-900 mt-1 text-xs">{formatDateTime(booking.createdAt)}</p>
-                              </div>
+                            <div>
+                              <p className="text-sm text-gray-500">Periode</p>
+                              <p>{formatDate(booking.startDate)} - {formatDate(booking.endDate)}</p>
                             </div>
-
-                            <div className="mt-4 pl-16">
-                              <span className="text-gray-500 text-xs uppercase tracking-wide">Status:</span>
-                              <div className="mt-2">{getStatusBadge(booking.status)}</div>
+                            <div>
+                              <p className="text-sm text-gray-500">Jumlah</p>
+                              <p>{booking.quantity} {booking.assetType === 'ruangan' ? 'ruangan' : 'unit'}</p>
                             </div>
                           </div>
+                        </DialogContent>
+                      </Dialog>
 
-                          <div className="flex flex-col gap-2 ml-4">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onViewDetail && onViewDetail(booking)}
-                              className="hover:bg-[#147EFB] hover:text-white hover:border-[#147EFB] transition-colors"
-                            >
-                              <Eye className="size-4 mr-1" />
-                              Detail
-                            </Button>
-
-                            {booking.status === 'ajukan' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-[#4CAF50] to-[#388E3C] hover:from-[#388E3C] hover:to-[#2E7D32] shadow-md"
-                                  onClick={() => handleApprove(booking.id)}
-                                >
-                                  <CheckCircle className="size-4 mr-1" />
-                                  Setujui
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-[#E53935] to-[#C62828] hover:from-[#C62828] hover:to-[#B71C1C] shadow-md text-white"
-                                  onClick={() => handleReject(booking.id)}
-                                >
-                                  <XCircle className="size-4 mr-1" />
-                                  Tolak
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-              })
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Riwayat Verifikasi Section */}
-      <Card className="shadow-lg border-0 mt-8">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-          <CardTitle className="flex items-center gap-2">
-            <History className="size-5 text-[#B3202A]" />
-            Riwayat Verifikasi
-          </CardTitle>
-          <CardDescription>Daftar peminjaman yang telah diverifikasi</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6 px-5">
-          {/* Filter Tabs untuk Riwayat */}
-          <Tabs value={riwayatFilter} onValueChange={(value) => setRiwayatFilter(value as typeof riwayatFilter)} className="mb-6">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-              <TabsTrigger value="all" className="data-[state=active]:bg-[#B3202A] data-[state=active]:text-white">
-                Semua ({verifiedBookings.length})
-              </TabsTrigger>
-              <TabsTrigger value="disetujui" className="data-[state=active]:bg-[#4CAF50] data-[state=active]:text-white">
-                Disetujui ({verifiedBookings.filter(b => b.status === 'disetujui' || b.status === 'selesai').length})
-              </TabsTrigger>
-              <TabsTrigger value="ditolak" className="data-[state=active]:bg-[#E53935] data-[state=active]:text-white">
-                Ditolak ({rejectedBookings.length})
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {/* Riwayat List */}
-          <div className="space-y-4">
-            {filteredRiwayat.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <div className="inline-block p-6 bg-gray-100 rounded-full mb-4">
-                  <History className="size-12 text-gray-300" />
-                </div>
-                <p className="text-lg">Tidak ada riwayat verifikasi</p>
-                <p className="text-sm text-gray-400 mt-1">Belum ada data pada kategori ini</p>
-              </div>
-            ) : (
-              filteredRiwayat.map((booking) => (
-                <div key={booking.id} className="relative group">
-                  <div className="border rounded-xl p-5 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 group-hover:border-[#B3202A]/30">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-4">
-                          {booking.assetType === 'ruangan' ? (
-                            <div className="p-3 bg-gradient-to-br from-[#147EFB]/10 to-[#147EFB]/5 rounded-xl border border-[#147EFB]/20">
-                              <Home className="size-6 text-[#147EFB]" />
-                            </div>
-                          ) : (
-                            <div className="p-3 bg-gradient-to-br from-[#F4A100]/10 to-[#F4A100]/5 rounded-xl border border-[#F4A100]/20">
-                              <Package className="size-6 text-[#F4A100]" />
-                            </div>
-                          )}
-                          <div>
-                            <h3 className="text-gray-900 mb-1">{booking.assetName}</h3>
-                            <p className="text-sm text-gray-500 flex items-center gap-1">
-                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B3202A]"></span>
-                              oleh <span className="text-gray-700">{booking.userName}</span>
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-16">
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Mulai</span>
-                            <p className="text-gray-900 mt-1">{formatDate(booking.startDate)}</p>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <span className="text-gray-500 text-xs uppercase tracking-wide">Tanggal Selesai</span>
-                            <p className="text-gray-900 mt-1">{formatDate(booking.endDate)}</p>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <span className="text-gray-500 text-xs uppercase tracking-wide">Jumlah</span>
-                            <p className="text-gray-900 mt-1">
-                              {booking.quantity} {booking.assetType === 'ruangan' ? 'ruangan' : 'unit'}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <span className="text-gray-500 text-xs uppercase tracking-wide">Diverifikasi</span>
-                            <p className="text-gray-900 mt-1 text-xs">{formatDateTime(booking.createdAt)}</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 pl-16">
-                          <span className="text-gray-500 text-xs uppercase tracking-wide">Status:</span>
-                          <div className="mt-2">{getStatusBadge(booking.status)}</div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onViewDetail && onViewDetail(booking)}
-                          className="hover:bg-[#147EFB] hover:text-white hover:border-[#147EFB] transition-colors"
-                        >
-                          <Eye className="size-4 mr-1" />
-                          Detail
-                        </Button>
-                      </div>
+                      {/* Approve / Reject Buttons */}
+                      {booking.status === 'ajukan' && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white transition-colors"
+                            onClick={() => handleApprove(booking.id)}
+                          >
+                            <CheckCircle className="size-4 mr-1" />
+                            Setujui
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="bg-red-600 hover:bg-red-700 text-white transition-colors"
+                            onClick={() => handleReject(booking.id)}
+                          >
+                            <XCircle className="size-4 mr-1" />
+                            Tolak
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
               ))
             )}
           </div>
-
-          {filteredRiwayat.length > 0 && (
-            <div className="mt-4 flex items-center justify-between text-sm text-gray-600 pt-4 border-t px-5">
-              <p>
-                Menampilkan {filteredRiwayat.length} dari {verifiedBookings.length} riwayat verifikasi
-              </p>
-              <div className="flex items-center gap-4">
-                <span className="text-xs text-gray-500 flex items-center gap-2">
-                  <span className="flex items-center gap-1">
-                    <CheckCircle className="size-3 text-[#4CAF50]" />
-                    {verifiedBookings.filter(b => b.status === 'disetujui' || b.status === 'selesai').length} Disetujui
-                  </span>
-                  <span className="text-gray-300">|</span>
-                  <span className="flex items-center gap-1">
-                    <XCircle className="size-3 text-[#E53935]" />
-                    {rejectedBookings.length} Ditolak
-                  </span>
-                </span>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
