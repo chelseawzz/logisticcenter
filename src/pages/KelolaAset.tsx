@@ -70,15 +70,43 @@ export function KelolaAset({ assets }: KelolaAsetProps) {
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingAsset) {
-      toast.success('Aset berhasil diperbarui');
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    // 🔌 Kirim ke backend
+    const res = await fetch('http://localhost:8080/logistikcenterbackendd/api/asset', {
+      method: editingAsset ? 'PUT' : 'POST', // 👈 PUT untuk edit, POST untuk tambah
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: editingAsset?.id,           // hanya untuk PUT
+        name: formData.name,
+        type: formData.type,
+        stock: formData.stock,
+        description: formData.description,
+        paketId: null, // atau sesuaikan jika pakai paket
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      toast.success(editingAsset ? 'Aset berhasil diperbarui' : 'Aset berhasil ditambahkan');
+      
+      // ✅ REFRESH DATA ASSET
+      // Kamu perlu fungsi loadAssets() di App.tsx
+      // Untuk sementara:
+      window.location.reload(); // atau panggil loadAssets()
+      
+      setIsDialogOpen(false);
     } else {
-      toast.success('Aset berhasil ditambahkan');
+      toast.error('Gagal', { description: result.message });
     }
-    setIsDialogOpen(false);
-  };
+  } catch (err) {
+    toast.error('Error koneksi', { description: 'Tidak bisa terhubung ke server' });
+  }
+};
 
   const handleDelete = (assetId: string) => {
     toast.success('Aset berhasil dihapus');

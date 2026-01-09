@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Input } from '../components/ui/input';
 import { useState } from 'react';
+import { Info } from 'lucide-react';
+import { Button } from '../components/ui/button';
 
 
 interface DashboardProps {
@@ -19,23 +21,63 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'ruangan' | 'barang'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | Booking['status']>('all');
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [showDetail, setShowDetail] = useState(false);
+
+  const openDetail = (booking: Booking) => {
+  setSelectedBooking(booking);
+  setShowDetail(true);
+};
+
 
   const userBookings = bookings.filter(b => b.userId === user.id);
   const activeBookings = userBookings.filter(b => b.status === 'disetujui' && !b.returnedQuantity);
   const pendingBookings = userBookings.filter(b => b.status === 'ajukan');
 
-  const getStatusBadge = (status: Booking['status']) => {
-    switch (status) {
-      case 'ajukan':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200"><Clock className="size-3 mr-1" />Menunggu</Badge>;
-      case 'disetujui':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle className="size-3 mr-1" />Disetujui</Badge>;
-      case 'ditolak':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200"><XCircle className="size-3 mr-1" />Ditolak</Badge>;
-      case 'selesai':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200"><CheckCircle className="size-3 mr-1" />Selesai</Badge>;
-    }
-  };
+  const getStatusBadge = (status: Booking['status'], booking: Booking) => {
+  switch (status) {
+    case 'ajukan':
+      return (
+        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+          <Clock className="size-3 mr-1" />
+          Menunggu
+        </Badge>
+      );
+    case 'disetujui':
+      return (
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+          <CheckCircle className="size-3 mr-1" />
+          Disetujui
+        </Badge>
+      );
+    case 'ditolak':
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+          onClick={() => openDetail(booking)}
+        >
+          <XCircle className="size-3 mr-1" />
+          Ditolak
+        </Button>
+      );
+    case 'selesai':
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+      onClick={() => {
+        // Tidak ada aksi, hanya untuk konsistensi tampilan
+      }}
+    >
+      <CheckCircle className="size-3 mr-1" />
+      Selesai
+    </Button>
+  );
+  }
+};
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -96,7 +138,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
               <CardDescription className="text-xs uppercase tracking-wide mb-1">Total Peminjaman</CardDescription>
               <CardTitle className="text-4xl text-[#B3202A] mb-1">{stats.total}</CardTitle>
               <p className="text-xs text-gray-500 flex items-center gap-1">
-                <span className="text-[#4CAF50]">↑ 12%</span> dari bulan lalu
+                <span className="text-[#4CAF50]">↑ 0%</span> dari bulan lalu
               </p>
             </CardContent>
           </Card>
@@ -119,7 +161,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
               <CardDescription className="text-xs uppercase tracking-wide mb-1">Peminjaman Ruangan</CardDescription>
               <CardTitle className="text-4xl text-[#147EFB] mb-1">{stats.ruangan}</CardTitle>
               <p className="text-xs text-gray-500 flex items-center gap-1">
-                <span className="text-[#4CAF50]">↑ 8%</span> dari bulan lalu
+                <span className="text-[#4CAF50]">↑ 0%</span> dari bulan lalu
               </p>
             </CardContent>
           </Card>
@@ -142,7 +184,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
               <CardDescription className="text-xs uppercase tracking-wide mb-1">Peminjaman Barang</CardDescription>
               <CardTitle className="text-4xl text-[#F4A100] mb-1">{stats.barang}</CardTitle>
               <p className="text-xs text-gray-500 flex items-center gap-1">
-                <span className="text-[#4CAF50]">↑ 15%</span> dari bulan lalu
+                <span className="text-[#4CAF50]">↑ 0%</span> dari bulan lalu
               </p>
             </CardContent>
           </Card>
@@ -229,6 +271,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
                   <TableHead className="text-white">Tanggal Mulai</TableHead>
                   <TableHead className="text-white">Tanggal Selesai</TableHead>
                   <TableHead className="text-white">Status</TableHead>
+
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -274,7 +317,9 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
                       </TableCell>
                       <TableCell>{formatDate(booking.startDate)}</TableCell>
                       <TableCell>{formatDate(booking.endDate)}</TableCell>
-                      <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                      <TableCell>
+                        {getStatusBadge(booking.status, booking)} {/* 👈 Sudah interaktif */}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -349,7 +394,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
                           )}
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          {getStatusBadge(booking.status)}
+                          {getStatusBadge(booking.status, booking)}
                           <ArrowRight className="size-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
@@ -362,7 +407,7 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
         </Card>
       )}
 
-      {/* Only show "Aset Tersedia" for mahasiswa, dosen, and staff */}
+            {/* Only show "Aset Tersedia" for mahasiswa, dosen, and staff */}
       {user.role !== 'verifikator' && (
         <div className="mt-8">
           <Card className="shadow-lg border-0">
@@ -406,6 +451,67 @@ export function Dashboard({ user, bookings, assets, onNavigate }: DashboardProps
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* ✅ MODAL DETAIL UNTUK STATUS "DITOLAK" */}
+      {showDetail && selectedBooking && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-lg font-bold">Detail Pengajuan</h3>
+              <button
+                onClick={() => setShowDetail(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+
+            {selectedBooking.verificationNote ? (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-4">
+                <p className="text-sm font-medium text-red-800 mb-2">Catatan Verifikator:</p>
+                <p className="text-sm text-red-700">{selectedBooking.verificationNote}</p>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-4">
+                <p className="text-sm text-yellow-700">Tidak ada catatan verifikasi.</p>
+              </div>
+            )}
+
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="text-gray-500">Nama Aset:</span>
+                <p className="font-medium">{selectedBooking.assetName}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Peminjam:</span>
+                <p className="font-medium">{selectedBooking.userName}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Jenis:</span>
+                <p className="font-medium capitalize">{selectedBooking.assetType}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Periode:</span>
+                <p className="font-medium">
+                  {formatDate(selectedBooking.startDate)} - {formatDate(selectedBooking.endDate)}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-500">Jumlah:</span>
+                <p className="font-medium">
+                  {selectedBooking.quantity} {selectedBooking.assetType === 'ruangan' ? 'ruangan' : 'unit'}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <Button variant="outline" onClick={() => setShowDetail(false)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

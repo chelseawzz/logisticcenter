@@ -6,15 +6,17 @@ import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { CheckCircle, XCircle, Clock, Package, Home, FileText, Eye, TrendingUp, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Textarea } from '../components/ui/textarea'; // 👈 Jangan lupa impor Textarea
 import { toast } from 'sonner';
 
 interface VerifikasiPengajuanProps {
   bookings: Booking[];
-  onUpdateStatus: (bookingId: string, status: 'disetujui' | 'ditolak') => void;
+  onUpdateStatus: (bookingId: string, status: 'disetujui' | 'ditolak', note?: string) => void; // 👈 tambahkan note
 }
 
 export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPengajuanProps) {
   const [filter, setFilter] = useState<'all' | 'ajukan' | 'disetujui' | 'ditolak'>('ajukan');
+  const [rejectNote, setRejectNote] = useState(''); // 👈 state untuk alasan penolakan
   const pendingBookings = bookings.filter(b => b.status === 'ajukan');
   const approvedBookings = bookings.filter(b => b.status === 'disetujui');
   const rejectedBookings = bookings.filter(b => b.status === 'ditolak');
@@ -39,20 +41,6 @@ export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPeng
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    });
-  };
-
-  const handleApprove = (bookingId: string) => {
-    onUpdateStatus(bookingId, 'disetujui');
-    toast.success('Pengajuan Disetujui', {
-      description: 'Peminjaman telah disetujui'
-    });
-  };
-
-  const handleReject = (bookingId: string) => {
-    onUpdateStatus(bookingId, 'ditolak');
-    toast.error('Pengajuan Ditolak', {
-      description: 'Peminjaman telah ditolak'
     });
   };
 
@@ -97,7 +85,7 @@ export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPeng
         <p className="text-gray-600 mt-1">Kelola dan verifikasi pengajuan peminjaman</p>
       </div>
 
-      {/* Modern Statistics Cards with Gradient (from first code) */}
+      {/* Modern Statistics Cards with Gradient */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Pengajuan Card */}
         <Card className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-transparent bg-gradient-to-br from-[#B3202A]/10 via-white to-white p-[2px] group">
@@ -213,7 +201,7 @@ export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPeng
           <CardTitle>Daftar Pengajuan</CardTitle>
           <CardDescription>Filter pengajuan berdasarkan status</CardDescription>
         </CardHeader>
-        <CardContent className = 'px-5 '>
+        <CardContent className="px-5">
           <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)} className="mb-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="ajukan">Menunggu ({pendingBookings.length})</TabsTrigger>
@@ -224,9 +212,9 @@ export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPeng
           </Tabs>
 
           {/* Booking List */}
-          <div className="space-y-4 ">
+          <div className="space-y-4">
             {filteredBookings.length === 0 ? (
-              <div className="text-center py-12 text-gray-500 ">
+              <div className="text-center py-12 text-gray-500">
                 <FileText className="size-12 mx-auto mb-3 text-gray-300" />
                 <p className="text-lg font-medium">Tidak ada pengajuan</p>
                 <p className="text-sm text-gray-400 mt-1">Belum ada pengajuan pada kategori ini</p>
@@ -294,6 +282,14 @@ export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPeng
                             <DialogDescription>Informasi lengkap peminjaman</DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 mt-4">
+                            {booking.verificationNote && (
+                              <div>
+                                <p className="text-sm text-gray-500">Catatan Verifikator</p>
+                                <p className="text-sm text-gray-900 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                  {booking.verificationNote}
+                                </p>
+                              </div>
+                            )}
                             <div>
                               <p className="text-sm text-gray-500">Nama Aset</p>
                               <p>{booking.assetName}</p>
@@ -330,19 +326,58 @@ export function VerifikasiPengajuan({ bookings, onUpdateStatus }: VerifikasiPeng
                           <Button
                             size="sm"
                             className="bg-green-600 hover:bg-green-700 text-white transition-colors"
-                            onClick={() => handleApprove(booking.id)}
+                            onClick={() => onUpdateStatus(booking.id, 'disetujui', '')}
                           >
                             <CheckCircle className="size-4 mr-1" />
                             Setujui
                           </Button>
-                          <Button
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white transition-colors"
-                            onClick={() => handleReject(booking.id)}
-                          >
-                            <XCircle className="size-4 mr-1" />
-                            Tolak
-                          </Button>
+
+                          {/* Modal Tolak dengan Input Note */}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                className="bg-red-600 hover:bg-red-700 text-white transition-colors"
+                              >
+                                <XCircle className="size-4 mr-1" />
+                                Tolak
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Tolak Pengajuan</DialogTitle>
+                                <DialogDescription>
+                                  Masukkan alasan penolakan agar peminjam mengetahui kesalahan.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <Textarea
+                                  placeholder="Contoh: Stok tidak mencukupi, dokumen tidak lengkap, dll."
+                                  value={rejectNote}
+                                  onChange={(e) => setRejectNote(e.target.value)}
+                                  className="min-h-[100px]"
+                                />
+                              </div>
+                              <div className="flex justify-end gap-2">
+                                <Button variant="outline" onClick={() => setRejectNote('')}>
+                                  Batal
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => {
+                                    if (!rejectNote.trim()) {
+                                      toast.error('Alasan penolakan wajib diisi');
+                                      return;
+                                    }
+                                    onUpdateStatus(booking.id, 'ditolak', rejectNote);
+                                    setRejectNote('');
+                                  }}
+                                >
+                                  Kirim Penolakan
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </>
                       )}
                     </div>

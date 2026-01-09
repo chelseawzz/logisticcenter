@@ -407,17 +407,16 @@ export function DetailVerifikasi({ booking, onBack, onApprove, onReject }: Detai
         </Card>
       )}
 
-      {/* Show Verifikator Note */}
-      {booking.status !== 'ajukan' && verificationNote && (
-        <Card className="border-2 border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-gray-900">Catatan Verifikator</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700">{verificationNote}</p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Tampilkan catatan verifikasi jika sudah ada di data booking */}
+          {booking.verificationNote && (
+            <Card className="mt-6 border-l-4 border-[#B3202A] bg-[#B3202A]/5">
+              <CardContent className="pt-4">
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Catatan Verifikator:</span> {booking.verificationNote}
+                </p>
+              </CardContent>
+            </Card>
+          )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { User, Booking, Asset } from '../App';
+import type { User, Booking, Asset, Paket } from '../App';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -14,6 +14,7 @@ interface PeminjamanFormProps {
   user: User;
   assets: Asset[];
   bookings: Booking[];
+  pakets: Paket[];
   onSubmit: (booking: Omit<Booking, 'id' | 'userId' | 'userName' | 'status' | 'createdAt'>) => void;
 }
 
@@ -54,7 +55,7 @@ const UKM_ORMAWA_LIST = [
   'Badan Eksekutif Mahasiswa (BEM)',
 ];
 
-export function PeminjamanForm({ user, assets, bookings, onSubmit }: PeminjamanFormProps) {
+export function PeminjamanForm({ user, assets, bookings, pakets, onSubmit }: PeminjamanFormProps) {
   const [selectedAssets, setSelectedAssets] = useState<SelectedAssetItem[]>([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -212,70 +213,127 @@ export function PeminjamanForm({ user, assets, bookings, onSubmit }: PeminjamanF
               </CardTitle>
               <CardDescription className="text-gray-100">Ruangan atau Barang</CardDescription>
             </CardHeader>
-            <CardContent className="pt-6 space-y-4 px-5">
-              <div>
-                <Label className="text-xs uppercase tracking-wide text-gray-500 mb-3 block">Ruangan Tersedia</Label>
-                <div className="space-y-2">
-                  {ruanganAssets.map((asset) => (
-                    <button
-                      key={asset.id}
-                      type="button"
-                      onClick={() => toggleAssetSelection(asset)}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                        isAssetSelected(asset.id)
-                          ? 'border-[#147EFB] bg-[#147EFB]/5 shadow-md'
-                          : 'border-gray-200 hover:border-[#147EFB]/50 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${isAssetSelected(asset.id) ? 'bg-[#147EFB]' : 'bg-[#147EFB]/10'}`}>
-                          <Home className={`size-5 ${isAssetSelected(asset.id) ? 'text-white' : 'text-[#147EFB]'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900 mb-1">{asset.name}</p>
-                          <p className="text-xs text-gray-500">{asset.description}</p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+           <CardContent className="pt-6 space-y-4 px-5">
+  <div>
+    <Label className="text-xs uppercase tracking-wide text-gray-500 mb-3 block">Ruangan Tersedia</Label>
+    <div className="space-y-2">
+      {ruanganAssets.map((asset) => (
+        <button
+          key={asset.id}
+          type="button"
+          onClick={() => toggleAssetSelection(asset)}
+          className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+            isAssetSelected(asset.id)
+              ? 'border-[#147EFB] bg-[#147EFB]/5 shadow-md'
+              : 'border-gray-200 hover:border-[#147EFB]/50 hover:bg-gray-50'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div className={`p-2 rounded-lg ${isAssetSelected(asset.id) ? 'bg-[#147EFB]' : 'bg-[#147EFB]/10'}`}>
+              <Home className={`size-5 ${isAssetSelected(asset.id) ? 'text-white' : 'text-[#147EFB]'}`} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-gray-900 mb-1">{asset.name}</p>
+              <p className="text-xs text-gray-500">{asset.description}</p>
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  </div>
 
-              <div className="pt-4 border-t">
-                <Label className="text-xs uppercase tracking-wide text-gray-500 mb-3 block">Barang Tersedia</Label>
-                <div className="space-y-2">
-                  {barangAssets.map((asset) => (
-                    <button
-                      key={asset.id}
-                      type="button"
-                      onClick={() => toggleAssetSelection(asset)}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                        isAssetSelected(asset.id)
-                          ? 'border-[#F4A100] bg-[#F4A100]/5 shadow-md'
-                          : 'border-gray-200 hover:border-[#F4A100]/50 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${isAssetSelected(asset.id) ? 'bg-[#F4A100]' : 'bg-[#F4A100]/10'}`}>
-                          <Package className={`size-5 ${isAssetSelected(asset.id) ? 'text-white' : 'text-[#F4A100]'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm text-gray-900">{asset.name}</p>
-                            <Badge variant="secondary" className="text-xs">
-                              {asset.stock} unit
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-gray-500">{asset.description}</p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+  <div className="pt-4 border-t">
+    <Label className="text-xs uppercase tracking-wide text-gray-500 mb-3 block">Barang Tersedia</Label>
+    <div className="space-y-2">
+      {barangAssets.map((asset) => (
+        <button
+          key={asset.id}
+          type="button"
+          onClick={() => toggleAssetSelection(asset)}
+          className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+            isAssetSelected(asset.id)
+              ? 'border-[#F4A100] bg-[#F4A100]/5 shadow-md'
+              : 'border-gray-200 hover:border-[#F4A100]/50 hover:bg-gray-50'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div className={`p-2 rounded-lg ${isAssetSelected(asset.id) ? 'bg-[#F4A100]' : 'bg-[#F4A100]/10'}`}>
+              <Package className={`size-5 ${isAssetSelected(asset.id) ? 'text-white' : 'text-[#F4A100]'}`} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm text-gray-900">{asset.name}</p>
+                <Badge variant="secondary" className="text-xs">
+                  {asset.stock} unit
+                </Badge>
               </div>
-            </CardContent>
+              <p className="text-xs text-gray-500">{asset.description}</p>
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* ✅ Section Baru: Daftar Paket */}
+{/* ✅ Section Baru: Daftar Paket */}
+<div className="pt-4 border-t">
+  <Label className="text-xs uppercase tracking-wide text-gray-500 mb-3 block">Daftar Paket</Label>
+  <div className="space-y-2">
+    {pakets.map(paket => {
+      // Cek apakah SEMUA aset dalam paket sudah dipilih
+      const paketAssets = assets.filter(a => a.paket_id === paket.id);
+      const isFullySelected = paketAssets.length > 0 && 
+        paketAssets.every(asset => selectedAssets.some(sa => sa.asset.id === asset.id));
+
+      return (
+        <button
+          key={paket.id}
+          type="button"
+          onClick={() => {
+            if (paketAssets.length === 0) {
+              toast.warning('Paket ini belum memiliki aset terkait', {
+                description: `Hubungi admin untuk melengkapi paket "${paket.nama_paket}"`
+              });
+              return;
+            }
+
+            // Toggle setiap aset dalam paket
+            paketAssets.forEach(asset => {
+              toggleAssetSelection(asset);
+            });
+          }}
+          className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+            isFullySelected
+              ? 'border-[#147EFB] bg-[#147EFB]/5 shadow-md'
+              : 'border-gray-200 hover:border-[#147EFB]/50 hover:bg-gray-50'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div className={`p-2 rounded-lg ${
+              isFullySelected ? 'bg-[#147EFB]' : 'bg-[#147EFB]/10'
+            }`}>
+              <Package className={`size-5 ${
+                isFullySelected ? 'text-white' : 'text-[#147EFB]'
+              }`} />
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-medium">{paket.nama_paket}</div>
+              <div className="text-xs text-gray-500">{paket.deskripsi}</div>
+              <div className="text-xs text-gray-500">
+                Kuota: {paket.kuota} • Aset: {paketAssets.length}
+              </div>
+            </div>
+          </div>
+        </button>
+      );
+    })}
+  </div>
+</div>
+</CardContent>
           </Card>
         </div>
+
 
         {/* Right Column - Form */}
         <div className="lg:col-span-2">

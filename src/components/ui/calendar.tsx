@@ -7,12 +7,17 @@ import { DayPicker } from "react-day-picker";
 import { cn } from "./utils";
 import { buttonVariants } from "./button";
 
+// ✅ Tambahkan type untuk modifiers
+type CalendarProps = React.ComponentProps<typeof DayPicker>;
+
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  modifiers,        
+  modifiersStyles,  
   ...props
-}: React.ComponentProps<typeof DayPicker>) {
+}: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -67,6 +72,9 @@ function Calendar({
           <ChevronRight className={cn("size-4", className)} {...props} />
         ),
       }}
+      // ✅ Pastikan ini ada!
+      modifiers={modifiers}
+      modifiersStyles={modifiersStyles}
       {...props}
     />
   );

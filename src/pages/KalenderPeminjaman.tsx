@@ -5,7 +5,7 @@ import type { Booking, Asset } from '../App';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Calendar } from '../components/ui/calendar';
 import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 // Icons
 import {
@@ -26,26 +26,46 @@ export function KalenderPeminjaman({ bookings, assets }: KalenderPeminjamanProps
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [filterType, setFilterType] = useState<'all' | 'ruangan' | 'barang'>('all');
 
+  // ✅ FORMAT TANGGAL (YYYY-MM-DD)
   const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0];
-  };
+  // Ambil tahun, bulan, hari dari lokal waktu (bukan UTC)
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // bulan dimulai dari 0
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
-  const getBookingsForDate = (date: Date | undefined) => {
-    if (!date) return [];
-    
-    const dateStr = formatDate(date);
-    
-    return bookings.filter(booking => {
-      if (booking.status === 'ditolak') return false;
-      if (filterType !== 'all' && booking.assetType !== filterType) return false;
-      
-      const startDate = booking.startDate;
-      const endDate = booking.endDate;
-      
-      return dateStr >= startDate && dateStr <= endDate;
-    });
-  };
+  // ✅ HARI INI
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
+  // ✅ CEK APAKAH TANGGAL ADA PEMINJAMAN AKTIF
+  const hasBooking = (date: Date) => {
+  const dateStr = formatDate(date).trim(); // "2026-01-09"
+  return bookings.some(booking => {
+    if (booking.status === 'ditolak' || booking.status === 'selesai') return false;
+    if (filterType !== 'all' && booking.assetType !== filterType) return false;
+
+    const start = booking.startDate?.trim() || '';
+    const end = booking.endDate?.trim() || '';
+
+    console.log("Cek:", dateStr, ">= ", start, "dan <= ", end);
+
+    return dateStr >= start && dateStr <= end;
+  });
+};
+
+const getBookingsForDate = (date: Date | undefined) => {
+  if (!date) return [];
+  const dateStr = formatDate(date).trim();
+  return bookings.filter(booking => {
+    if (booking.status === 'ditolak' || booking.status === 'selesai') return false;
+    if (filterType !== 'all' && booking.assetType !== filterType) return false;
+    const start = booking.startDate?.trim() || '';
+    const end = booking.endDate?.trim() || '';
+    return dateStr >= start && dateStr <= end;
+  });
+};
   const selectedDateBookings = getBookingsForDate(selectedDate);
 
   const formatDateDisplay = (dateString: string) => {
@@ -82,39 +102,44 @@ export function KalenderPeminjaman({ bookings, assets }: KalenderPeminjamanProps
     }
   };
 
-  const getDatesWithBookings = () => {
-    const dates = new Set<string>();
-    bookings.forEach(booking => {
-      if (booking.status === 'ditolak') return;
-      if (filterType !== 'all' && booking.assetType !== filterType) return;
+  // ✅ STATISTIK HANYA HITUNG PEMINJAMAN AKTIF
+  const ruanganCount = bookings.filter(b => 
+    b.assetType === 'ruangan' && 
+    b.status !== 'ditolak' && 
+    b.status !== 'selesai'
+  ).length;
 
-      const start = new Date(booking.startDate);
-      const end = new Date(booking.endDate);
-      
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        dates.add(formatDate(new Date(d)));
-      }
-    });
-    return dates;
-  };
+  const barangCount = bookings.filter(b => 
+    b.assetType === 'barang' && 
+    b.status !== 'ditolak' && 
+    b.status !== 'selesai'
+  ).length;
 
-  const datesWithBookings = getDatesWithBookings();
-
+  // ✅ MODIFIERS UNTUK KALENDER
   const modifiers = {
-    booked: (date: Date) => datesWithBookings.has(formatDate(date))
+    today: (date: Date) => {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime() === today.getTime();
+    },
+    booked: (date: Date) => hasBooking(date)
   };
 
+  // ✅ GAYA UNTUK SETIAP MODIFIER
   const modifiersStyles = {
+    today: {
+      fontWeight: 'bold',
+      backgroundColor: '#000', // Hitam
+      color: 'white',
+      borderRadius: '8px'
+    },
     booked: {
       fontWeight: 'bold',
-      backgroundColor: '#B3202A',
+      backgroundColor: '#B3202A', // Merah
       color: 'white',
       borderRadius: '8px'
     }
   };
-
-  const ruanganCount = bookings.filter(b => b.assetType === 'ruangan' && b.status !== 'ditolak').length;
-  const barangCount = bookings.filter(b => b.assetType === 'barang' && b.status !== 'ditolak').length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -130,10 +155,12 @@ export function KalenderPeminjaman({ bookings, assets }: KalenderPeminjamanProps
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-100 mb-1">Total Peminjaman</p>
-                <p className="text-4xl">{bookings.filter(b => b.status !== 'ditolak').length}</p>
+                <p className="text-4xl">
+                  {bookings.filter(b => b.status !== 'ditolak' && b.status !== 'selesai').length}
+                </p>
                 <p className="text-xs text-gray-100 mt-2 flex items-center gap-1">
                   <TrendingUp className="size-3" />
-                  Aktif & Selesai
+                  Hanya Aktif
                 </p>
               </div>
               <div className="p-4 bg-white/20 rounded-2xl">
@@ -151,7 +178,7 @@ export function KalenderPeminjaman({ bookings, assets }: KalenderPeminjamanProps
                 <p className="text-4xl">{ruanganCount}</p>
                 <p className="text-xs text-gray-100 mt-2 flex items-center gap-1">
                   <Home className="size-3" />
-                  Total ruangan
+                  Aktif
                 </p>
               </div>
               <div className="p-4 bg-white/20 rounded-2xl">
@@ -169,7 +196,7 @@ export function KalenderPeminjaman({ bookings, assets }: KalenderPeminjamanProps
                 <p className="text-4xl">{barangCount}</p>
                 <p className="text-xs text-gray-100 mt-2 flex items-center gap-1">
                   <Package className="size-3" />
-                  Total barang
+                  Aktif
                 </p>
               </div>
               <div className="p-4 bg-white/20 rounded-2xl">
@@ -209,18 +236,20 @@ export function KalenderPeminjaman({ bookings, assets }: KalenderPeminjamanProps
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 rounded-lg bg-[#B3202A]"></div>
                   <div>
-                    <p className="text-xs text-gray-600">Tanggal dengan Peminjaman</p>
-                    <p className="text-sm text-gray-900">{datesWithBookings.size} hari</p>
+                    <p className="text-xs text-gray-600">Tanggal Dipinjam</p>
+                    <p className="text-sm text-gray-900">
+                      {bookings.filter(b => b.status !== 'ditolak' && b.status !== 'selesai').length > 0 ? 'Aktif' : 'Tidak ada'}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-50 border-2 border-gray-200 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-lg bg-white border-2 border-gray-300"></div>
+                  <div className="w-4 h-4 rounded-lg bg-gray-300"></div>
                   <div>
-                    <p className="text-xs text-gray-600">Tanggal Kosong</p>
-                    <p className="text-sm text-gray-900">Tersedia</p>
+                    <p className="text-xs text-gray-600">Tanggal Hari Ini</p>
+                    <p className="text-sm text-gray-900">Klik untuk detail</p>
                   </div>
                 </div>
               </div>

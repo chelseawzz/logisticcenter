@@ -18,7 +18,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -34,36 +34,44 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       return;
     }
 
-    // Mock authentication dengan deteksi role otomatis
-    setTimeout(() => {
-      let role: UserRole = 'mahasiswa';
-      
-      // Deteksi Verifikator berdasarkan email tertentu
-      const verifikatorEmails = ['chelsealodar@telkomuniversity.ac.id', 'verifikator@telkomuniversity.ac.id'];
-      if (verifikatorEmails.includes(email.toLowerCase())) {
-        role = 'verifikator';
-      } else if (email.includes('staff')) {
-        role = 'staff';
-      } else if (email.includes('dosen')) {
-        role = 'dosen';
-      } else if (email.endsWith('@student.telkomuniversity.ac.id')) {
-        role = 'mahasiswa';
-      }
-
-      const user: User = {
-        id: '1',
-        name: email.split('@')[0].replace('.', ' ').toUpperCase(),
-        email: email,
-        role: role,
-      };
-
-      toast.success('Login berhasil!', {
-        description: `Selamat datang, ${user.name}`
+    try {
+      // 🔌 Kirim ke backend Java
+      const res = await fetch('http://localhost:8080/logistikcenterbackendd/api/auth/login', {
+        method: 'POST',
+        credentials: 'include', // ⚠️ WAJIB untuk session
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      onLogin(user);
+      const data = await res.json();
+
+      if (data.success) {
+        // Ambil role & name dari backend
+        const user: User = {
+          id: String(data.id),
+          name: data.name,
+          email: email,
+          role: data.role as UserRole,
+        };
+
+        toast.success('Login berhasil!', {
+          description: `Selamat datang, ${user.name}`
+        });
+
+        onLogin(user);
+      } else {
+        toast.error('Login gagal', {
+          description: data.message || 'Email atau password salah'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Error koneksi', {
+        description: 'Tidak bisa terhubung ke server backend'
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -110,7 +118,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="nama@student.telkomuniversity.ac.id"
+                  placeholder="nama@telkomuniversity.ac.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12 border-gray-300 focus:border-[#B3202A] focus:ring-[#B3202A]"
@@ -118,7 +126,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 />
               </div>
               <p className="text-xs text-gray-500">
-                Contoh: nama@student.telkomuniversity.ac.id
+                Contoh: nama@telkomuniversity.ac.id
               </p>
             </div>
 
